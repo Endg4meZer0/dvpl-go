@@ -1,4 +1,4 @@
-module github.com/Endg4meZer0/dvpl
+module github.com/Endg4meZer0/dvpl-go
 
 go 1.23.1
 
