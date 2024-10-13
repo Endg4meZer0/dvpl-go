@@ -16,6 +16,7 @@ type DVPLFooterData struct {
 	CompressType   uint32 // The compression type used. Usually is 2, with the exception of 0 for .tex files.
 }
 
+// Read a DVPL footer from the given byte array. If no valid DVPL footer is present, return error.
 func ReadDVPLFooterData(buf []byte) (DVPLFooterData, error) {
 	footerBuf := buf[len(buf)-20:]
 	dvplTypeBuf := footerBuf[len(footerBuf)-4:]
@@ -33,21 +34,19 @@ func ReadDVPLFooterData(buf []byte) (DVPLFooterData, error) {
 	return footerData, nil
 }
 
+// Convert the DVPLFooterData struct into byte array ready to be appended to the resulting file.
 func toDVPLFooter(fd DVPLFooterData) []byte {
 	res := make([]byte, 0, 20)
-	res = binary.LittleEndian.AppendUint32(
-		binary.LittleEndian.AppendUint32(
-			binary.LittleEndian.AppendUint32(
-				binary.LittleEndian.AppendUint32(
-					res, fd.OriginalSize),
-				fd.CompressedSize),
-			fd.CRC32),
-		fd.CompressType)
+	res = binary.LittleEndian.AppendUint32(res, fd.OriginalSize)
+	res = binary.LittleEndian.AppendUint32(res, fd.CompressedSize)
+	res = binary.LittleEndian.AppendUint32(res, fd.CRC32)
+	res = binary.LittleEndian.AppendUint32(res, fd.CompressType)
 	res = append(res, []byte("DVPL")...)
 	return res
 }
 
-func UncompressDVPL(buf []byte) ([]byte, error) {
+// Decompress the given byte array and return the decompressed byte array, or return an error if the given byte array is not a valid DVPL.
+func DecompressDVPL(buf []byte) ([]byte, error) {
 	footerData, err := ReadDVPLFooterData(buf)
 	if err != nil {
 		return nil, err
@@ -81,10 +80,12 @@ func UncompressDVPL(buf []byte) ([]byte, error) {
 	}
 }
 
-func CompressDVPL(buf []byte, isTex bool) ([]byte, error) {
+// Compress the given byte array using HC_2 compression, or no compression if noCompression is specified,
+// add a DVPL footer and return the resulting byte array, or return an error if the compression algorithm fails.
+func CompressDVPL(buf []byte, noCompression bool) ([]byte, error) {
 	compressionType := 2
 	compressor := lz4.CompressorHC{Level: lz4.Level2}
-	if isTex {
+	if noCompression {
 		compressionType = 0
 		compressor.Level = lz4.Fast
 	}

@@ -42,9 +42,9 @@ func TestCompressDVPL(t *testing.T) {
 	}
 }
 
-func TestUncompressDVPL(t *testing.T) {
+func TestDecompressDVPL(t *testing.T) {
 	buffer := []byte("\xf4>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc et nisl massa.\x00\x01\x00p\x00\x00\x00\x00\x00\x00\x00\\\x00\x00\x00Y\x00\x00\x00\x95\x16+&\x02\x00\x00\x00DVPL")
-	res, err := UncompressDVPL(buffer)
+	res, err := DecompressDVPL(buffer)
 	if err != nil {
 		t.Error(err)
 	}
