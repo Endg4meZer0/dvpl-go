@@ -1,7 +1,6 @@
 package dvpl
 
 import (
-	"bytes"
 	"encoding/binary"
 	"fmt"
 	"hash/crc32"
@@ -90,11 +89,7 @@ func CompressDVPL(buf []byte, noCompression bool) ([]byte, error) {
 		compressor.Level = lz4.Fast
 	}
 	leastCompressableSize := lz4.CompressBlockBound(len(buf))
-	if leastCompressableSize > len(buf) {
-		zeros := bytes.Repeat([]byte{0}, leastCompressableSize-len(buf))
-		buf = append(buf, zeros...)
-	}
-	compressedBuf := make([]byte, len(buf))
+	compressedBuf := make([]byte, leastCompressableSize)
 	i, err := compressor.CompressBlock(buf, compressedBuf)
 	if err != nil {
 		return nil, DVPLConverterError("Failed to compress the buffer. More:\n" + err.Error())

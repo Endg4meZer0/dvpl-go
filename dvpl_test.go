@@ -37,13 +37,13 @@ func TestCompressDVPL(t *testing.T) {
 		t.Errorf("Encountered an internal converter error:\n%s", err)
 	}
 
-	if strings.Compare(string(res), "\xf4>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc et nisl massa.\x00\x01\x00p\x00\x00\x00\x00\x00\x00\x00\\\x00\x00\x00Y\x00\x00\x00\x95\x16+&\x02\x00\x00\x00DVPL") != 0 {
+	if strings.Compare(string(res), "\xf0=Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc et nisl massa.L\x00\x00\x00N\x00\x00\x00\x1c\x19M\x1a\x02\x00\x00\x00DVPL") != 0 {
 		t.Errorf("Given the lorem ipsum input string, received faulty compressed string:\n%s", string(res))
 	}
 }
 
 func TestDecompressDVPL(t *testing.T) {
-	buffer := []byte("\xf4>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc et nisl massa.\x00\x01\x00p\x00\x00\x00\x00\x00\x00\x00\\\x00\x00\x00Y\x00\x00\x00\x95\x16+&\x02\x00\x00\x00DVPL")
+	buffer := []byte("\xf0=Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc et nisl massa.L\x00\x00\x00N\x00\x00\x00\x1c\x19M\x1a\x02\x00\x00\x00DVPL")
 	res, err := DecompressDVPL(buffer)
 	if err != nil {
 		t.Error(err)
