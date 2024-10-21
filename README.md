@@ -30,7 +30,10 @@ func DecompressDVPL(buf []byte) ([]byte, error)
 
 ## Install
 Assuming you have the go toolchain installed
-`go get github.com/Endg4meZer0/dvpl-go`
+
+```
+go get github.com/Endg4meZer0/dvpl-go
+```
 
 ## Usage example
 ```go
