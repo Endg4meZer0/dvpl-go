@@ -1,7 +1,7 @@
 # dvpl-go | A package for Go to work with DVPL compression format.
 
 ## Overview
-World of Tanks Blitz and Tanks Blitz use a custom compression format named DVPL that is actually a LZ4 2-nd level compression with the addition of a special footer. This package is made to work with this format, namely to convert files in and out of DVPL format.
+World of Tanks Blitz and Tanks Blitz use a custom compression format named DVPL that is actually a LZ4 compression, usually of a level 2 with the exception of level 0 for .tex files, with the addition of a special footer. This package is made to work with this format, namely to convert files in and out of DVPL format.
 
 ## What's inside?
 There are one struct and three functions available:
