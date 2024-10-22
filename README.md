@@ -20,7 +20,7 @@ func ReadDVPLFooterData(buf []byte) (DVPLFooterData, error)
 
 // Compress the given byte array using HC_2 compression, or no compression if noCompression is specified,
 // add a DVPL footer and return the resulting byte array, or return an error if the compression algorithm fails.
-func CompressDVPL(buf []byte, noCompression bool)
+func CompressDVPL(buf []byte, noCompression bool) ([]byte, error)
 
 // Decompress the given byte array and return the decompressed byte array,
 // or return an error if the given byte array is not a valid DVPL.
@@ -35,7 +35,7 @@ Assuming you have the go toolchain installed
 go get github.com/Endg4meZer0/dvpl-go
 ```
 
-## Usage example
+## Usage
 ```go
 
 file, err := os.ReadFile(path)
@@ -66,4 +66,3 @@ if err != nil {
 os.WriteFile(newPath, convertedFile, 0777)
 
 ```
-
