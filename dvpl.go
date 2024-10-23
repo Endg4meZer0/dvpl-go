@@ -79,7 +79,7 @@ func DecompressDVPL(buf []byte) ([]byte, error) {
 	}
 }
 
-// Compress the given byte array using HC_2 compression, or no compression if noCompression is specified,
+// Compress the given byte array using level 2 compression, or level 0 compression if noCompression is true,
 // add a DVPL footer and return the resulting byte array, or return an error if the compression algorithm fails.
 func CompressDVPL(buf []byte, noCompression bool) ([]byte, error) {
 	compressionType := 2
