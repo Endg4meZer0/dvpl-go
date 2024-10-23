@@ -20,7 +20,7 @@ func ReadDVPLFooterData(buf []byte) (DVPLFooterData, error) {
 	footerBuf := buf[len(buf)-20:]
 	dvplTypeBuf := footerBuf[len(footerBuf)-4:]
 	if string(dvplTypeBuf) != "DVPL" {
-		return DVPLFooterData{}, DVPLConverterError("Invalid filetype in footer data.")
+		return DVPLFooterData{}, fmt.Errorf("invalid filetype in footer data: expected \"DVPL\", received \"%s\"", dvplTypeBuf)
 	}
 
 	footerData := DVPLFooterData{
@@ -51,22 +51,22 @@ func DecompressDVPL(buf []byte) ([]byte, error) {
 		return nil, err
 	}
 	targetBuf := buf[0 : len(buf)-20]
-	if len(targetBuf) != int(footerData.CompressedSize) {
-		return nil, DVPLConverterError("Compressed size mismatch with the footer data.")
+	if targetBufLen := len(targetBuf); targetBufLen != int(footerData.CompressedSize) {
+		return nil, fmt.Errorf("the real compressed size of the file mismatches with the footer data: found %d in footer, received %d as real size", int(footerData.CompressedSize), targetBufLen)
 	}
-	if crc32.ChecksumIEEE(targetBuf) != footerData.CRC32 {
-		return nil, DVPLConverterError("CRC32 hash sum mismatch with the footer data.")
+	if hashSum := crc32.ChecksumIEEE(targetBuf); hashSum != footerData.CRC32 {
+		return nil, fmt.Errorf("the CRC32 hash sum mismatches with the footer data: found %d in footer, received %d after hashing real data", int(footerData.CRC32), hashSum)
 	}
 
 	if footerData.CompressType == 0 && footerData.OriginalSize != footerData.CompressedSize {
-		return nil, DVPLConverterError("Compression type is 0 but the original size mismatches compressed size.")
+		return nil, fmt.Errorf("compression type is level 0 but footer data shows a mismatch between original and compressed sizes")
 	} else if footerData.CompressType == 0 {
 		return targetBuf, nil
 	} else if footerData.CompressType <= 2 {
 		uncompressedBuf := make([]byte, footerData.OriginalSize)
 		_, err := lz4.UncompressBlock(targetBuf, uncompressedBuf)
 		if err != nil {
-			return nil, DVPLConverterError("Failed to uncompress the buffer. More:\n" + err.Error())
+			return nil, fmt.Errorf("failed to uncompress the buffer. More:\n" + err.Error())
 		}
 
 		i := len(uncompressedBuf) - 1
@@ -75,7 +75,7 @@ func DecompressDVPL(buf []byte) ([]byte, error) {
 
 		return uncompressedBuf[:i+1], nil
 	} else {
-		return nil, DVPLConverterError(fmt.Sprintf("Not a DVPL level of compression. The maximum level of compression used in DVPL is 2, but met %d.", footerData.CompressType))
+		return nil, fmt.Errorf("not a DVPL level of compression. The maximum level of compression used in DVPL is 2, but met %d", footerData.CompressType)
 	}
 }
 
@@ -92,7 +92,7 @@ func CompressDVPL(buf []byte, noCompression bool) ([]byte, error) {
 	compressedBuf := make([]byte, leastCompressableSize)
 	i, err := compressor.CompressBlock(buf, compressedBuf)
 	if err != nil {
-		return nil, DVPLConverterError("Failed to compress the buffer. More:\n" + err.Error())
+		return nil, fmt.Errorf("failed to compress the buffer. More:\n" + err.Error())
 	}
 
 	readyBuf := append(make([]byte, 0, i+20), compressedBuf[:i]...)
